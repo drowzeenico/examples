@@ -1,0 +1,14 @@
+// получить среднее количество звонков по проекту
+select sum(calls) as data, hour, day, month, year from cache
+where created_at < '${this.rawDate}' AND projectId = `${this.criteria}`
+group by hour, day, month, year
+order by min(created_at)`;
+
+
+// получить среднюю длительность ночных звонков(0-8) за последние 8 дней 
+SELECT EXTRACT(EPOCH FROM avg(ended_ts - connected_ts))::int as night
+FROM ns_inbound_call_data
+where is_processed = true 
+and created_ts >= now()::date - interval '8 days' 
+and created_ts < now()::date
+and EXTRACT (hour from connected_ts) between 0 and 8
